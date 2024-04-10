@@ -3,7 +3,7 @@ import discord
 import asyncio
 
 # Replace 'your_token_here' with your actual token
-token = ''
+token = 'your_token_here' with your actual token'
 
 # Intents for the bot
 intents = discord.Intents.default()
@@ -42,6 +42,9 @@ async def update_timer():
         # Wait for 1 second
         await asyncio.sleep(1)
         seconds += 1
+
+# Keep the bot alive
+keep_alive()
 
 # Run the client with your token
 client.run(token)
