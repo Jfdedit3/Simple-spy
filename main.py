@@ -3,7 +3,7 @@ import discord
 import asyncio
 
 # Replace 'your_token_here' with your actual token
-token = 'your_token_here' with your actual token'
+token = ''
 
 # Intents for the bot
 intents = discord.Intents.default()
