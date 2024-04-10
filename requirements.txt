@@ -1,5 +1,4 @@
 requests
 websocket-client
 Flask
-asyncio
-discord
+
