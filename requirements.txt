@@ -1,15 +1,3 @@
---[[
-    SimpleSpy v2.2 SOURCE
-    SimpleSpy est un outil de test de pénétration léger qui enregistre les appels distants.
-    Crédits:
-        exx - Principalement tout
-        Frosty - GUI vers Lua
-]]
---[[
-  Modification faite par - REDz
-  Amélioration pour Mobile par - Assistant
-]]
--- Éteint l'instance précédente de SimpleSpy
 if _G.SimpleSpyExecuted and type(_G.SimpleSpyShutdown) == "function" then
 	print(pcall(_G.SimpleSpyShutdown))
 end
@@ -19,8 +7,6 @@ local Highlight =
 	loadstring(
 		game:HttpGet("https://github.com/exxtremestuffs/SimpleSpySource/raw/master/highlight.lua")
 	)()
----- GÉNÉRÉ (en grande partie) PAR GUI to LUA ----
--- Instances:
 local SimpleSpy2 = Instance.new("ScreenGui")
 local Background = Instance.new("Frame")
 local LeftPanel = Instance.new("Frame")
@@ -48,13 +34,11 @@ local MinimizeButton = Instance.new("TextButton")
 local ImageLabel_3 = Instance.new("ImageLabel")
 local ToolTip = Instance.new("Frame")
 local TextLabel = Instance.new("TextLabel")
--- **Ajout pour le bouton de basculement mobile**
-local ToggleSpyButton = Instance.new("ImageButton") -- Création de l'ImageButton
-local ToggleSpyCorner = Instance.new("UICorner") -- Pour arrondir les coins du bouton
---Properties:
+local gui = Instance.new("ScreenGui",Background)
+local nextb = Instance.new("ImageButton", gui)
+local gui = Instance.new("UICorner", nextb)
 SimpleSpy2.Name = "SimpleSpy2"
 SimpleSpy2.ResetOnSpawn = false
-SimpleSpy2.ZIndexBehavior = Enum.ZIndexBehavior.Sibling -- Ajout pour une meilleure gestion des ZIndex
 local SpyFind = CoreGui:FindFirstChild(SimpleSpy2.Name)
 if SpyFind and SpyFind ~= SimpleSpy2 then
   SpyFind:Destroy()
@@ -67,24 +51,16 @@ Background.Position = UDim2.new(0, 160, 0, 100)
 Background.Size = UDim2.new(0, 450, 0, 268)
 Background.Active = true
 Background.Draggable = true
-
--- **Configuration du bouton de basculement mobile**
-ToggleSpyButton.Name = "ToggleSpyButton"
-ToggleSpyButton.Parent = SimpleSpy2 -- Parenté directement au ScreenGui
-ToggleSpyButton.BackgroundColor3 = Color3.fromRGB(53, 52, 55) -- Couleur de fond
-ToggleSpyButton.BorderSizePixel = 0
-ToggleSpyButton.Position = UDim2.new(0, 100, 0, 60) -- Position en bas à gauche
-ToggleSpyButton.Size = UDim2.new(0, 40, 0, 40) -- Taille 40x40
-ToggleSpyButton.Image = "rbxassetid://7072720870" -- Icône "œil ouvert" (visible)
-ToggleSpyButton.Visible = true -- Visible par défaut
-ToggleSpyButton.ZIndex = 10 -- ZIndex élevé pour être au-dessus
-ToggleSpyButton.Active = true
-ToggleSpyButton.Draggable = true
-
-ToggleSpyCorner.CornerRadius = UDim.new(0, 8) -- Bord arrondi
-ToggleSpyCorner.Name = "UICorner"
-ToggleSpyCorner.Parent = ToggleSpyButton
-
+nextb.Position = UDim2.new(0,100,0,60)
+nextb.Size = UDim2.new(0,40,0,40)
+nextb.BackgroundColor3 = Color3.fromRGB(53, 52, 55)
+nextb.Image = "rbxassetid://7072720870"
+nextb.Active = true
+nextb.Draggable = true
+nextb.MouseButton1Down:connect(function()
+nextb.Image = (Background.Visible and "rbxassetid://7072720870") or "rbxassetid://7072719338"
+Background.Visible = not Background.Visible
+end)
 LeftPanel.Name = "LeftPanel"
 LeftPanel.Parent = Background
 LeftPanel.BackgroundColor3 = Color3.fromRGB(53, 52, 55)
@@ -109,7 +85,6 @@ RemoteTemplate.Parent = LogList
 RemoteTemplate.BackgroundColor3 = Color3.new(1, 1, 1)
 RemoteTemplate.BackgroundTransparency = 1
 RemoteTemplate.Size = UDim2.new(0, 117, 0, 27)
-RemoteTemplate.Visible = false -- Caché par défaut
 ColorBar.Name = "ColorBar"
 ColorBar.Parent = RemoteTemplate
 ColorBar.BackgroundColor3 = Color3.fromRGB(255, 242, 0)
@@ -171,7 +146,6 @@ FunctionTemplate.Parent = ScrollingFrame
 FunctionTemplate.BackgroundColor3 = Color3.new(1, 1, 1)
 FunctionTemplate.BackgroundTransparency = 1
 FunctionTemplate.Size = UDim2.new(0, 117, 0, 23)
-FunctionTemplate.Visible = false -- Caché par défaut
 ColorBar_2.Name = "ColorBar"
 ColorBar_2.Parent = FunctionTemplate
 ColorBar_2.BackgroundColor3 = Color3.new(1, 1, 1)
@@ -218,7 +192,7 @@ Simple.BackgroundTransparency = 1
 Simple.Position = UDim2.new(0, 5, 0, 0)
 Simple.Size = UDim2.new(0, 57, 0, 18)
 Simple.Font = Enum.Font.SourceSansBold
-Simple.Text = "SimpleSpy For Mobile" -- Texte mis à jour
+Simple.Text = "SimpleSpy For Mobile"
 Simple.TextColor3 = Color3.new(0, 0, 1)
 Simple.TextSize = 14
 Simple.TextXAlignment = Enum.TextXAlignment.Left
@@ -291,8 +265,6 @@ TextLabel.TextSize = 14
 TextLabel.TextWrapped = true
 TextLabel.TextXAlignment = Enum.TextXAlignment.Left
 TextLabel.TextYAlignment = Enum.TextYAlignment.Top
--------------------------------------------------------------------------------
--- init
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
@@ -301,51 +273,30 @@ local TextService = game:GetService("TextService")
 local Mouse
 local selectedColor = Color3.new(0.321569, 0.333333, 1)
 local deselectedColor = Color3.new(0.8, 0.8, 0.8)
---- Pour que les éléments soient descendants
 local layoutOrderNum = 999999999
---- Indique si l'interface se ferme
 local mainClosing = false
---- Indique si l'interface est fermée (par défaut false)
 local closed = false
---- Indique si la barre latérale se ferme
 local sideClosing = false
---- Indique si la barre latérale est fermée (par défaut true mais s'ouvre automatiquement lors de la sélection d'un remote)
 local sideClosed = false
---- Indique si la zone de code est maximisée (par défaut false)
 local maximized = false
---- Les journaux d'événements à lire
 local logs = {}
---- L'événement actuellement sélectionné.Log (par défaut nil)
 local selected = nil
---- La liste noire (peut être un nom de chaîne ou l'Instance Remote)
 local blacklist = {}
---- La liste de blocage (peut être un nom de chaîne ou l'Instance Remote)
 local blocklist = {}
---- Indique s'il faut ajouter la fonction getNil
 local getNil = false
---- Tableau des remotes (et fonctions originales) connectés
 local connectedRemotes = {}
---- True = hookfunction, false = namecall
 local toggle = false
 local gm
 local original
---- utilisé pour empêcher les récursifs
 local prevTables = {}
---- contient les journaux (pour suppression)
 local remoteLogs = {}
---- utilisé pour hookfunction
 local remoteEvent = Instance.new("RemoteEvent")
---- utilisé pour hookfunction
 local remoteFunction = Instance.new("RemoteFunction")
 local originalEvent = remoteEvent.FireServer
 local originalFunction = remoteFunction.InvokeServer
---- le nombre maximum de remotes autorisés dans les journaux
 _G.SIMPLESPYCONFIG_MaxRemotes = 500
---- nombre d'espaces à indenter
 local indent = 4
---- utilisé pour l'ordonnanceur de tâches
 local scheduled = {}
---- RBXScriptConnect de l'ordonnanceur de tâches
 local schedulerconnect
 local SimpleSpy = {}
 local topstr = ""
@@ -355,48 +306,28 @@ local rightFadeIn
 local codebox
 local p
 local getnilrequired = false
--- variables autoblock
 local autoblock = false
 local history = {}
 local excluding = {}
--- variables d'informations sur la fonction
 local funcEnabled = true
--- variables de l'API de connexion/hameçonnage des remotes
 local remoteSignals = {}
 local remoteHooks = {}
--- icône de souris d'origine
 local oldIcon
--- si la souris est dans l'interface
 local mouseInGui = false
--- tableau pratique de RBXScriptConnections à déconnecter lors de l'arrêt
 local connections = {}
--- indique si SimpleSpy utilise 'getcallingscript()' pour obtenir le script (par défaut false car détection)
 local useGetCallingScript = false
---- utilisé pour activer/désactiver le keyToString de SimpleSpy pour les remotes
 local keyToString = false
--- détermine si les valeurs de retour sont enregistrées
 local recordReturnValues = false
--- fonctions
---- Convertit les arguments en une chaîne et génère le code qui appelle la méthode spécifiée avec eux, recommandé pour être utilisé en conjonction avec ValueToString (la méthode doit être une chaîne, par exemple `game:GetService("ReplicatedStorage").Remote.remote:FireServer`)
---- @param method string
---- @param args any[]
---- @return string
 function SimpleSpy:ArgsToString(method, args)
 	assert(typeof(method) == "string", "string expected, got " .. typeof(method))
 	assert(typeof(args) == "table", "table expected, got " .. typeof(args))
 	return v2v({ args = args }) .. "
 " .. method .. "(unpack(args))"
 end
---- Convertit une valeur en variables avec l'index spécifié comme nom de variable (si nil/invalide alors le nom sera attribué automatiquement)
---- @param t any[]
---- @return string
 function SimpleSpy:TableToVars(t)
 	assert(typeof(t) == "table", "table expected, got " .. typeof(t))
 	return v2v(t)
 end
---- Convertit une valeur en une variable avec le `variablename` spécifié (si nil/invalide alors le nom sera attribué automatiquement)
---- @param value any
---- @return string
 function SimpleSpy:ValueToVar(value, variablename)
 	assert(variablename == nil or typeof(variablename) == "string", "string expected, got " .. typeof(variablename))
 	if not variablename then
@@ -404,15 +335,9 @@ function SimpleSpy:ValueToVar(value, variablename)
 	end
 	return v2v({ [variablename] = value })
 end
---- Convertit n'importe quelle valeur en une chaîne, ne peut pas préserver le contenu des fonctions
---- @param value any
---- @return string
 function SimpleSpy:ValueToString(value)
 	return v2s(value)
 end
---- Génère les informations simplespy sur la fonction
---- @param func function
---- @return string
 function SimpleSpy:GetFunctionInfo(func)
 	assert(typeof(func) == "function", "Instance expected, got " .. typeof(func))
 	warn("Function info currently unavailable due to crashing in Synapse X")
@@ -421,8 +346,6 @@ function SimpleSpy:GetFunctionInfo(func)
 		constants = debug.getconstants(func),
 	} })
 end
---- Obtient le ScriptSignal pour un remote spécifié en train de tirer
---- @param remote Instance
 function SimpleSpy:GetRemoteFiredSignal(remote)
 	assert(typeof(remote) == "Instance", "Instance expected, got " .. typeof(remote))
 	if not remoteSignals[remote] then
@@ -430,16 +353,11 @@ function SimpleSpy:GetRemoteFiredSignal(remote)
 	end
 	return remoteSignals[remote]
 end
---- Permet le hameçonnage direct des remotes **CELA PEUT ÊTRE TRÈS DANGEREUX**
---- @param remote Instance
---- @param f function
 function SimpleSpy:HookRemote(remote, f)
 	assert(typeof(remote) == "Instance", "Instance expected, got " .. typeof(remote))
 	assert(typeof(f) == "function", "function expected, got " .. typeof(f))
 	remoteHooks[remote] = f
 end
---- Bloque l'instance/chaîne remote spécifiée
---- @param remote any
 function SimpleSpy:BlockRemote(remote)
 	assert(
 		typeof(remote) == "Instance" or typeof(remote) == "string",
@@ -447,8 +365,6 @@ function SimpleSpy:BlockRemote(remote)
 	)
 	blocklist[remote] = true
 end
---- Exclut le remote spécifié des journaux (instance/chaîne)
---- @param remote any
 function SimpleSpy:ExcludeRemote(remote)
 	assert(
 		typeof(remote) == "Instance" or typeof(remote) == "string",
@@ -456,8 +372,6 @@ function SimpleSpy:ExcludeRemote(remote)
 	)
 	blacklist[remote] = true
 end
---- Crée un nouveau ScriptSignal qui peut être connecté et tiré
---- @return table
 function newSignal()
 	local connected = {}
 	return {
@@ -493,7 +407,6 @@ function newSignal()
 		end,
 	}
 end
---- Empêche le spam de remotes de causer du lag (efface les journaux après `_G.SIMPLESPYCONFIG_MaxRemotes` ou 500 remotes)
 function clean()
 	local max = _G.SIMPLESPYCONFIG_MaxRemotes
 	if not typeof(max) == "number" and math.floor(max) ~= max then
@@ -516,7 +429,6 @@ function clean()
 		remoteLogs = newLogs
 	end
 end
---- Met à l'échelle le ToolTip pour s'adapter au texte contenu
 function scaleToolTip()
 	local size = TextService:GetTextSize(
 		TextLabel.Text,
@@ -527,7 +439,6 @@ function scaleToolTip()
 	TextLabel.Size = UDim2.new(0, size.X, 0, size.Y)
 	ToolTip.Size = UDim2.new(0, size.X + 4, 0, size.Y + 4)
 end
---- Exécuté lorsque le bouton de bascule (le logo SimpleSpy) est survolé
 function onToggleButtonHover()
 	if not toggle then
 		TweenService:Create(Simple, TweenInfo.new(0.5), { TextColor3 = Color3.fromRGB(252, 51, 51) }):Play()
@@ -535,19 +446,15 @@ function onToggleButtonHover()
 		TweenService:Create(Simple, TweenInfo.new(0.5), { TextColor3 = Color3.fromRGB(68, 206, 91) }):Play()
 	end
 end
---- Exécuté lorsque le bouton de bascule n'est plus survolé
 function onToggleButtonUnhover()
 	TweenService:Create(Simple, TweenInfo.new(0.5), { TextColor3 = Color3.fromRGB(255, 255, 255) }):Play()
 end
---- Exécuté lorsque le bouton X est survolé
 function onXButtonHover()
 	TweenService:Create(CloseButton, TweenInfo.new(0.2), { BackgroundColor3 = Color3.fromRGB(255, 60, 60) }):Play()
 end
---- Exécuté lorsque le bouton X n'est plus survolé
 function onXButtonUnhover()
 	TweenService:Create(CloseButton, TweenInfo.new(0.2), { BackgroundColor3 = Color3.fromRGB(37, 36, 38) }):Play()
 end
---- Bascule la méthode d'espionnage des remotes (lorsque le bouton est cliqué)
 function onToggleButtonClick()
 	if toggle then
 		TweenService:Create(Simple, TweenInfo.new(0.5), { TextColor3 = Color3.fromRGB(252, 51, 51) }):Play()
@@ -556,7 +463,6 @@ function onToggleButtonClick()
 	end
 	toggleSpyMethod()
 end
---- Reconnecte bringBackOnResize si le viewport actuel change et le connecte également initialement
 function connectResize()
 	local lastCam = workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(bringBackOnResize)
 	workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
@@ -566,7 +472,6 @@ function connectResize()
 		end
 	end)
 end
---- Ramène l'interface si elle se perd hors écran (connecté au changement de viewport de la caméra)
 function bringBackOnResize()
 	validateSize()
 	if sideClosed then
@@ -598,8 +503,6 @@ function bringBackOnResize()
 		{ Position = UDim2.new(0, currentX, 0, currentY) }
 	):Play()
 end
---- Fait glisser l'interface (tant que la souris est enfoncée)
---- @param input InputObject
 function onBarInput(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 then
 		local lastPos = UserInputService.GetMouseLocation(UserInputService)
@@ -647,9 +550,6 @@ function onBarInput(input)
 					{ Position = UDim2.new(0, currentPos.X, 0, currentPos.Y) }
 				):Play()
 			end
-			-- if input.UserInputState ~= Enum.UserInputState.Begin then
-			--     RunService.UnbindFromRenderStep(RunService, "drag")
-			-- end
 		end)
 		table.insert(
 			connections,
@@ -661,7 +561,6 @@ function onBarInput(input)
 		)
 	end
 end
---- Fait disparaître le tableau d'éléments (et les rend invisibles), renvoie une fonction pour les rendre visibles à nouveau
 function fadeOut(elements)
 	local data = {}
 	for _, v in pairs(elements) do
@@ -715,7 +614,6 @@ function fadeOut(elements)
 		end
 	end
 end
---- Développe et réduit l'interface (closed est le booléen de bascule)
 function toggleMinimize(override)
 	if mainClosing and not override or maximized then
 		return
@@ -742,7 +640,6 @@ function toggleMinimize(override)
 	end
 	mainClosing = false
 end
---- Développe et réduit la barre latérale (sideClosed est le booléen de bascule)
 function toggleSideTray(override)
 	if sideClosing and not override or maximized then
 		return
@@ -769,7 +666,6 @@ function toggleSideTray(override)
 	end
 	sideClosing = false
 end
---- Développe la zone de code pour l'adapter à l'écran afin d'un affichage plus pratique
 function toggleMaximize()
 	if not sideClosed and not maximized then
 		maximized = true
@@ -814,7 +710,6 @@ function toggleMaximize()
 		end)
 	end
 end
---- Ajuste les éléments de l'interface à la taille 'Maximisée'
 function maximizeSize(speed)
 	if not speed then
 		speed = 0.05
@@ -863,7 +758,6 @@ function maximizeSize(speed)
 		)
 		:Play()
 end
---- Ajuste les éléments de l'interface pour fermer le côté
 function minimizeSize(speed)
 	if not speed then
 		speed = 0.05
@@ -910,7 +804,6 @@ function minimizeSize(speed)
 		)
 		:Play()
 end
---- Garantit que la taille est dans les limites d'écran
 function validateSize()
 	local x, y = Background.AbsoluteSize.X, Background.AbsoluteSize.Y
 	local screenSize = workspace.CurrentCamera.ViewportSize
@@ -929,7 +822,6 @@ function validateSize()
 	end
 	Background.Size = UDim2.fromOffset(x, y)
 end
---- Obtient le joueur dont une instance est descendante
 function getPlayerFromInstance(instance)
 	for _, v in pairs(Players:GetPlayers()) do
 		if v.Character and (instance:IsDescendantOf(v.Character) or instance == v.Character) then
@@ -937,7 +829,6 @@ function getPlayerFromInstance(instance)
 		end
 	end
 end
---- S'exécute sur MouseButton1Click d'un cadre d'événement
 function eventSelect(frame)
 	if selected and selected.Log and selected.Log.Button then
 		TweenService
@@ -960,17 +851,12 @@ function eventSelect(frame)
 		toggleSideTray()
 	end
 end
---- Met à jour la taille du canevas pour s'adapter au nombre actuel de boutons de fonction
 function updateFunctionCanvas()
 	ScrollingFrame.CanvasSize = UDim2.fromOffset(UIGridLayout.AbsoluteContentSize.X, UIGridLayout.AbsoluteContentSize.Y)
 end
---- Met à jour la taille du canevas pour s'adapter au nombre actuel de remotes
 function updateRemoteCanvas()
 	LogList.CanvasSize = UDim2.fromOffset(UIListLayout.AbsoluteContentSize.X, UIListLayout.AbsoluteContentSize.Y)
 end
---- Permet de basculer l'info-bulle et de définir facilement la description
---- @param enable boolean
---- @param text string
 function makeToolTip(enable, text)
 	if enable then
 		if ToolTip.Visible then
@@ -1010,10 +896,6 @@ function makeToolTip(enable, text)
 		end
 	end
 end
---- Crée un nouveau bouton de fonction (en dessous de la zone de code)
---- @param name string
----@param description function
----@param onClick function
 function newButton(name, description, onClick)
 	local button = FunctionTemplate:Clone()
 	button.Text.Text = name
@@ -1032,13 +914,6 @@ function newButton(name, description, onClick)
 	button.Parent = ScrollingFrame
 	updateFunctionCanvas()
 end
---- Ajoute un nouveau Remote aux journaux
---- @param name string Le nom du remote en cours de journalisation
---- @param type string Le type du remote en cours de journalisation (soit 'function' soit 'event')
---- @param args any
---- @param remote any
---- @param function_info string
---- @param blocked any
 function newRemote(type, name, args, remote, function_info, blocked, src, returnValue)
 	local remoteFrame = RemoteTemplate:Clone()
 	remoteFrame.Text.Text = string.sub(name, 1, 50)
@@ -1081,7 +956,6 @@ function newRemote(type, name, args, remote, function_info, blocked, src, return
 	clean()
 	updateRemoteCanvas()
 end
---- Génère un script à partir des arguments fournis (le premier doit être le chemin du remote)
 function genScript(remote, args)
 	prevTables = {}
 	local gen = ""
@@ -1149,7 +1023,6 @@ local args = {"
 	prevTables = {}
 	return gen
 end
---- value-to-string: value, string (out), level (indentation), parent table, var name, is from tovar
 function v2s(v, l, p, n, vtv, i, pt, path, tables, tI)
 	if not tI then
 		tI = { 0 }
@@ -1183,8 +1056,6 @@ function v2s(v, l, p, n, vtv, i, pt, path, tables, tI)
 		return "nil --[[" .. typeof(v) .. "]]"
 	end
 end
---- value-to-variable
---- @param t any
 function v2v(t)
 	topstr = ""
 	bottomstr = ""
@@ -1232,36 +1103,25 @@ function v2v(t)
 	end
 	return ret
 end
---- table-to-string
---- @param t table
---- @param l number
---- @param p table
---- @param n string
---- @param vtv boolean
---- @param i any
---- @param pt table
---- @param path string
---- @param tables table
---- @param tI table
 function t2s(t, l, p, n, vtv, i, pt, path, tables, tI)
-	local globalIndex = table.find(getgenv(), t) -- vérifie si la table est une globale
+	local globalIndex = table.find(getgenv(), t)
 	if type(globalIndex) == "string" then
 		return globalIndex
 	end
 	if not tI then
 		tI = { 0 }
 	end
-	if not path then -- définit le chemin sur une chaîne vide (donc il n'est pas nécessaire de le fournir manuellement à chaque fois)
+	if not path then
 		path = ""
 	end
-	if not l then -- définit le niveau sur 0 (pour l'indentation) et tables pour enregistrer les tables qu'elle a déjà sérialisées
+	if not l then
 		l = 0
 		tables = {}
 	end
-	if not p then -- p est la table précédente mais n'a pas vraiment d'importance si c'est la première
+	if not p then
 		p = t
 	end
-	for _, v in pairs(tables) do -- vérifie si la table actuelle a été sérialisée avant
+	for _, v in pairs(tables) do
 		if n and rawequal(v, t) then
 			bottomstr = bottomstr
 				.. "
@@ -1274,12 +1134,12 @@ function t2s(t, l, p, n, vtv, i, pt, path, tables, tI)
 			return "{} --[[DUPLICATE]]"
 		end
 	end
-	table.insert(tables, t) -- enregistre la table dans les tables passées
-	local s = "{" -- début de la sérialisation
+	table.insert(tables, t)
+	local s = "{"
 	local size = 0
-	l = l + indent -- définit le niveau d'indentation
-	for k, v in pairs(t) do -- itère sur la table
-		size = size + 1 -- change la taille pour la limite maximale
+	l = l + indent
+	for k, v in pairs(t) do
+		size = size + 1
 		if size > (_G.SimpleSpyMaxTableSize or 1000) then
 			s = s
 				.. "
@@ -1288,7 +1148,7 @@ function t2s(t, l, p, n, vtv, i, pt, path, tables, tI)
 				.. "-- MAXIMUM TABLE SIZE REACHED, CHANGE '_G.SimpleSpyMaxTableSize' TO ADJUST MAXIMUM SIZE "
 			break
 		end
-		if rawequal(k, t) then -- vérifie si la table en cours d'itération est utilisée comme index dans elle-même (ouais, lua)
+		if rawequal(k, t) then
 			bottomstr = bottomstr
 				.. "
 "
@@ -1306,8 +1166,8 @@ function t2s(t, l, p, n, vtv, i, pt, path, tables, tI)
 			size -= 1
 			continue
 		end
-		local currentPath = "" -- initialise le chemin de 'v' dans 't'
-		if type(k) == "string" and k:match("^[%a_]+[%w_]*$") then -- gère proprement la génération de chemin de table (pour la première moitié)
+		local currentPath = ""
+		if type(k) == "string" and k:match("^[%a_]+[%w_]*$") then
 			currentPath = "." .. k
 		else
 			currentPath = "[" .. k2s(k, l, p, n, vtv, k, t, path .. currentPath, tables, tI) .. "]"
@@ -1315,7 +1175,6 @@ function t2s(t, l, p, n, vtv, i, pt, path, tables, tI)
 		if size % 100 == 0 then
 			scheduleWait()
 		end
-		-- sérialise réellement le membre de la table
 		s = s
 			.. "
 "
@@ -1326,16 +1185,15 @@ function t2s(t, l, p, n, vtv, i, pt, path, tables, tI)
 			.. v2s(v, l, p, n, vtv, k, t, path .. currentPath, tables, tI)
 			.. ","
 	end
-	if #s > 1 then -- supprime la dernière virgule car cela a meilleure allure (aucun moyen de dire si c'est terminé 'till c'est fait donc...)
+	if #s > 1 then
 		s = s:sub(1, #s - 1)
 	end
-	if size > 0 then -- indente proprement l'accolade fermante
+	if size > 0 then
 		s = s .. "
 " .. string.rep(" ", l - indent)
 	end
 	return s .. "}"
 end
---- key-to-string
 function k2s(v, ...)
 	if keyToString then
 		if typeof(v) == "userdata" and getrawmetatable(v) then
@@ -1353,7 +1211,6 @@ function k2s(v, ...)
 	end
 	return v2s(v, ...)
 end
---- function-to-string
 function f2s(f)
 	for k, x in pairs(getgenv()) do
 		local isgucci, gpath
@@ -1375,8 +1232,6 @@ function f2s(f)
 	end
 	return "function()end --[[" .. tostring(f) .. "]]"
 end
---- instance-to-path
---- @param i userdata
 function i2p(i)
 	local player = getplayer(i)
 	local parent = i
@@ -1435,11 +1290,8 @@ function i2p(i)
 		return "game"
 	end
 end
---- userdata-to-string: userdata
---- @param u userdata
 function u2s(u)
 	if typeof(u) == "TweenInfo" then
-		-- TweenInfo
 		return "TweenInfo.new("
 			.. tostring(u.Time)
 			.. ", Enum.EasingStyle."
@@ -1454,10 +1306,8 @@ function u2s(u)
 			.. tostring(u.DelayTime)
 			.. ")"
 	elseif typeof(u) == "Ray" then
-		-- Ray
 		return "Ray.new(" .. u2s(u.Origin) .. ", " .. u2s(u.Direction) .. ")"
 	elseif typeof(u) == "NumberSequence" then
-		-- NumberSequence
 		local ret = "NumberSequence.new("
 		for i, v in pairs(u.KeyPoints) do
 			ret = ret .. tostring(v)
@@ -1467,10 +1317,8 @@ function u2s(u)
 		end
 		return ret .. ")"
 	elseif typeof(u) == "DockWidgetPluginGuiInfo" then
-		-- DockWidgetPluginGuiInfo
 		return "DockWidgetPluginGuiInfo.new(Enum.InitialDockState" .. tostring(u) .. ")"
 	elseif typeof(u) == "ColorSequence" then
-		-- ColorSequence
 		local ret = "ColorSequence.new("
 		for i, v in pairs(u.KeyPoints) do
 			ret = ret .. "Color3.new(" .. tostring(v) .. ")"
@@ -1480,20 +1328,16 @@ function u2s(u)
 		end
 		return ret .. ")"
 	elseif typeof(u) == "BrickColor" then
-		-- BrickColor
 		return "BrickColor.new(" .. tostring(u.Number) .. ")"
 	elseif typeof(u) == "NumberRange" then
-		-- NumberRange
 		return "NumberRange.new(" .. tostring(u.Min) .. ", " .. tostring(u.Max) .. ")"
 	elseif typeof(u) == "Region3" then
-		-- Region3
 		local center = u.CFrame.Position
 		local size = u.CFrame.Size
 		local vector1 = center - size / 2
 		local vector2 = center + size / 2
 		return "Region3.new(" .. u2s(vector1) .. ", " .. u2s(vector2) .. ")"
 	elseif typeof(u) == "Faces" then
-		-- Faces
 		local faces = {}
 		if u.Top then
 			table.insert(faces, "Enum.NormalId.Top")
@@ -1564,7 +1408,6 @@ function u2s(u)
 		return string.format("nil --[[%s]]", typeof(u))
 	end
 end
---- Obtient le joueur dont une instance est descendante
 function getplayer(instance)
 	for _, v in pairs(Players:GetPlayers()) do
 		if v.Character and (instance:IsDescendantOf(v.Character) or instance == v.Character) then
@@ -1572,7 +1415,6 @@ function getplayer(instance)
 		end
 	end
 end
---- value-to-path (dans la table)
 function v2p(x, t, path, prev)
 	if not path then
 		path = ""
@@ -1614,7 +1456,6 @@ function v2p(x, t, path, prev)
 	end
 	return false, ""
 end
---- format s: string, byte encrypt (pour les caractères spéciaux)
 function formatstr(s, indentation)
 	if not indentation then
 		indentation = 0
@@ -1629,7 +1470,6 @@ function formatstr(s, indentation)
 			or ""
 		)
 end
---- Ajoute des \'s au texte comme remplacement des caractères d'espacement et autres choses parce que string.format ne peut pas yayeet
 function handlespecials(value, indentation)
 	local buildStr = {}
 	local i = 1
@@ -1662,7 +1502,6 @@ function handlespecials(value, indentation)
 	end
 	return table.concat(buildStr)
 end
--- safe (ish) tostring
 function safetostring(v: any)
 	if typeof(v) == "userdata" or type(v) == "table" then
 		local mt = getrawmetatable(v)
@@ -1676,12 +1515,9 @@ function safetostring(v: any)
 	end
 	return tostring(v)
 end
---- trouve le script depuis 'src' depuis getinfo, renvoie nil si non trouvé
---- @param src string
 function getScriptFromSrc(src)
 	local realPath
 	local runningTest
-	--- @type number
 	local s, e
 	local match = false
 	if src:sub(1, 1) == "=" then
@@ -1727,11 +1563,9 @@ function getScriptFromSrc(src)
 	end
 	return realPath
 end
---- planifie la fonction fournie (et l'appelle avec tous les arguments après)
 function schedule(f, ...)
 	table.insert(scheduled, { f, ... })
 end
---- met en pause le thread actuel jusqu'à ce que l'ordonnanceur donne le feu vert
 function scheduleWait()
 	local thread = coroutine.running()
 	schedule(function()
@@ -1739,7 +1573,6 @@ function scheduleWait()
 	end)
 	coroutine.yield()
 end
---- le grand (eh bien franchement petit maintenant) boi ordonnanceur de tâches lui-même, gère p majuscule n'importe quoi aussi vite que possible
 function taskscheduler()
 	if not toggle then
 		scheduled = {}
@@ -1756,7 +1589,6 @@ function taskscheduler()
 		end
 	end
 end
---- Gère les journaux de remotes
 function remoteHandler(hookfunction, methodName, remote, args, funcInfo, calling, returnValue)
 	local validInstance, validClass = pcall(function()
 		return remote:IsA("RemoteEvent") or remote:IsA("RemoteFunction")
@@ -1831,7 +1663,6 @@ function remoteHandler(hookfunction, methodName, remote, args, funcInfo, calling
 		end
 	end
 end
---- Utilisé pour hookfunction
 function hookRemote(remoteType, remote, ...)
 	if typeof(remote) == "Instance" then
 		local args = { ... }
@@ -1970,7 +1801,6 @@ end, originalEvent)
 local newInvokeServer = newcclosure(function(...)
 	return hookRemote("RemoteFunction", ...)
 end, originalFunction)
---- Bascule l'espion de remotes
 function toggleSpy()
 	if not toggle then
 		if hookmetamethod then
@@ -2010,12 +1840,10 @@ function toggleSpy()
 		hookfunction(remoteFunction.InvokeServer, originalFunction)
 	end
 end
---- Bascule entre les deux méthodes d'espionnage de remotes (hookfunction actuellement = désactivé)
 function toggleSpyMethod()
 	toggleSpy()
 	toggle = not toggle
 end
---- Arrête l'espion de remotes
 function shutdown()
 	if schedulerconnect then
 		schedulerconnect:Disconnect()
@@ -2040,7 +1868,6 @@ function shutdown()
 	end
 	_G.SimpleSpyExecuted = false
 end
--- main
 if not _G.SimpleSpyExecuted then
 	local succeeded, err = pcall(function()
 		if not RunService:IsClient() then
@@ -2083,7 +1910,6 @@ Missing: "
 			ImageLabel_2,
 			ImageLabel_3,
 		})
-		-- if gethui then funcEnabled = false end
 		onToggleButtonClick()
 		RemoteTemplate.Parent = nil
 		FunctionTemplate.Parent = nil
@@ -2098,7 +1924,6 @@ Missing: "
 			end
 		end
 		TextLabel:GetPropertyChangedSignal("Text"):Connect(scaleToolTip)
-		-- TopBar.InputBegan:Connect(onBarInput)
 		MinimizeButton.MouseButton1Click:Connect(toggleMinimize)
 		MaximizeButton.MouseButton1Click:Connect(toggleSideTray)
 		Simple.MouseButton1Click:Connect(onToggleButtonClick)
@@ -2119,8 +1944,7 @@ Missing: "
 			pcall(syn.protect_gui, SimpleSpy2)
 		end
 		bringBackOnResize()
-		SimpleSpy2.Parent = --[[gethui and gethui() or]]
-			CoreGui
+		SimpleSpy2.Parent = CoreGui
 		_G.SimpleSpyExecuted = true
 		if not Players.LocalPlayer then
 			Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
@@ -2154,36 +1978,12 @@ else
 	SimpleSpy2:Destroy()
 	return
 end
------ ADD ONS ----- (ajoutez ou supprimez facilement des fonctionnalités supplémentaires au RemoteSpy !)
---[[
-    Quelques éléments utiles :
-        - ajoutez votre fonction ici, et créez des boutons pour eux via la fonction 'newButton'
-        - le premier argument fourni est le TextButton sur lequel le joueur clique pour exécuter la fonction
-        - les scripts générés sont générés lorsque le namecall est initialement déclenché et enregistrés dans les objets remoteFrame
-        - les remotes sur liste noire seront ignorés directement dans namecall (moins de lag)
-        - les propriétés d'un objet 'remoteFrame' :
-            {
-                Name: (string) Le nom du Remote
-                GenScript: (string) Le script généré qui apparaît dans la zone de code (généré lorsque namecall déclenché)
-                Source: (Instance (LocalScript)) Le script qui a déclenché/invoqué le remote
-                Remote: (Instance (RemoteEvent) | Instance (RemoteFunction)) Le remote qui a été déclenché/invoqué
-                Log: (Instance (TextButton)) Le bouton utilisé pour le remote (identique à 'selected.Log')
-            }
-        - liste des globales : (contactez @exx#9394 pour plus d'informations ou si vous avez des suggestions pour d'autres à ajouter)
-            - closed: (boolean) si l'interface est actuellement minimisée ou non
-            - logs: (table[remoteFrame]) pleine d'objets remoteFrame (propriétés listées ci-dessus)
-            - selected: (remoteFrame) le remoteFrame actuellement sélectionné (propriétés listées ci-dessus)
-            - blacklist: (string[] | Instance[] (RemoteEvent) | Instance[] (RemoteFunction)) un tableau de noms et remotes sur liste noire
-            - codebox: (Instance (TextBox)) la zone de texte qui contient tout le code - effacée souvent
-]]
--- Copie le contenu de la zone de code
 newButton("Copy Code", function()
 	return "Click to copy code"
 end, function()
 	setclipboard(codebox:getString())
 	TextLabel.Text = "Copied successfully!"
 end)
---- Copie le script source (qui a déclenché le remote)
 newButton("Copy Remote", function()
 	return "Click to copy the path of the remote"
 end, function()
@@ -2192,7 +1992,6 @@ end, function()
 		TextLabel.Text = "Copied!"
 	end
 end)
--- Exécute le contenu de la zone de code via loadstring
 newButton("Run Code", function()
 	return "Click to execute code"
 end, function()
@@ -2207,7 +2006,6 @@ end, function()
 		TextLabel.Text = "Execution error!"
 	end
 end)
---- Obtient le script appelant (pas super fiable mais bon)
 newButton("Get Script", function()
 	return "Click to copy calling script to clipboard
 WARNING: Not super reliable, nil == could not find"
@@ -2217,7 +2015,6 @@ end, function()
 		TextLabel.Text = "Done!"
 	end
 end)
---- Décompile le script qui a déclenché le remote et le met dans la zone de code
 newButton("Function Info", function()
 	return "Click to view calling function information"
 end, function()
@@ -2232,7 +2029,6 @@ end, function()
 		TextLabel.Text = "Done! Function info generated by the SimpleSpy Serializer."
 	end
 end)
---- Efface les journaux de Remotes
 newButton("Clr Logs", function()
 	return "Click to clear logs"
 end, function()
@@ -2247,7 +2043,6 @@ end, function()
 	selected = nil
 	TextLabel.Text = "Logs cleared!"
 end)
---- Exclut le Remote sélectionné.Log du RemoteSpy
 newButton("Exclude (i)", function()
 	return "Click to exclude this Remote.
 Excluding a remote makes SimpleSpy ignore it, but it will continue to be usable."
@@ -2257,7 +2052,6 @@ end, function()
 		TextLabel.Text = "Excluded!"
 	end
 end)
---- Exclut tous les Remotes qui partagent le même nom que le remote sélectionné.Log du RemoteSpy
 newButton("Exclude (n)", function()
 	return "Click to exclude all remotes with this name.
 Excluding a remote makes SimpleSpy ignore it, but it will continue to be usable."
@@ -2267,7 +2061,6 @@ end, function()
 		TextLabel.Text = "Excluded!"
 	end
 end)
---- efface la liste noire
 newButton("Clr Blacklist", function()
 	return "Click to clear the blacklist.
 Excluding a remote makes SimpleSpy ignore it, but it will continue to be usable."
@@ -2275,7 +2068,6 @@ end, function()
 	blacklist = {}
 	TextLabel.Text = "Blacklist cleared!"
 end)
---- Empêche le Remote sélectionné.Log de déclencher le serveur (toujours journalisé)
 newButton("Block (i)", function()
 	return "Click to stop this remote from firing.
 Blocking a remote won't remove it from SimpleSpy logs, but it will not continue to fire the server."
@@ -2289,7 +2081,6 @@ end, function()
 		end
 	end
 end)
---- Empêche tous les remotes de se déclencher qui partagent le même nom que le remote sélectionné.Log du RemoteSpy (toujours journalisé)
 newButton("Block (n)", function()
 	return "Click to stop remotes with this name from firing.
 Blocking a remote won't remove it from SimpleSpy logs, but it will not continue to fire the server."
@@ -2299,7 +2090,6 @@ end, function()
 		TextLabel.Text = "Excluded!"
 	end
 end)
---- efface la liste de blocage
 newButton("Clr Blocklist", function()
 	return "Click to stop blocking remotes.
 Blocking a remote won't remove it from SimpleSpy logs, but it will not continue to fire the server."
@@ -2307,7 +2097,6 @@ end, function()
 	blocklist = {}
 	TextLabel.Text = "Blocklist cleared!"
 end)
---- Tente de décompiler le script source
 newButton("Decompile", function()
 	return "Attempts to decompile source script
 WARNING: Not super reliable, nil == could not find"
@@ -2392,20 +2181,3 @@ end, function()
 		codebox:setRaw(SimpleSpy:ValueToVar(selected.ReturnValue, "returnValue"))
 	end
 end)
-
--- **Fonction de basculement de l'interface pour le bouton mobile**
-local function toggleInterfaceVisibility()
-	Background.Visible = not Background.Visible
-	-- Change l'icône du bouton en fonction de la visibilité
-	if Background.Visible then
-		ToggleSpyButton.Image = "rbxassetid://7072720870" -- Icône "œil ouvert"
-	else
-		ToggleSpyButton.Image = "rbxassetid://7072719338" -- Icône "œil fermé"
-	end
-end
-
--- **Connexion de l'événement clic au bouton de basculement**
-ToggleSpyButton.MouseButton1Click:Connect(toggleInterfaceVisibility)
-
--- **Masquer initialement l'interface principale si souhaité**
--- Background.Visible = false -- Décommentez cette ligne si vous voulez que l'interface soit cachée au démarrage
